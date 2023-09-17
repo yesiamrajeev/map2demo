@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">map2</string>
     <string name="google_maps_API_key">AIzaSyB1jcuja4g6K5q6jTr5uhy_kmar4W-VfWM</string>
+    <string name="API_KEY">AIzaSyDIzE2dl_JDiML1Aexcv2YsliG0OqX4OJg</string>
 </resources>

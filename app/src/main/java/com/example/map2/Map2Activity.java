@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,21 +30,19 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class Map2Activity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private Marker haryanaMarker;
     private Polyline currentPolyline;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+        setContentView(R.layout.activity_map2);
         getLocationPermission();
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map2);
         mapFragment.getMapAsync(this);
         setupShowRouteButton();
     }
@@ -54,20 +51,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         LatLng delhiLatLng = new LatLng(20.24811936715895, 85.80219702893264); // Delhi coordinates
-        LatLng haryanaLatLng = new LatLng(20.24783418557049, 85.80123567086278); // Haryana coordinates
+        LatLng haryanaLatLng = new LatLng(20.24811936715895, 85.80219702893264); // Haryana coordinates
         LatLng gurugramLatLng = new LatLng(20.24879434926989, 85.80107513143706); // Gurugram coordinates
 
-        MarkerOptions gurugramOptions = new MarkerOptions()
+        MarkerOptions delhiMarkerOptions = new MarkerOptions()
                 .position(delhiLatLng)
-                .title("Cafeteria")
-                .snippet("Faculty room E006");
+                .title("Delhi")
+                .snippet("The capital of India");
 
         MarkerOptions haryanaMarkerOptions = new MarkerOptions()
                 .position(haryanaLatLng)
-                .title("E Block")
-                .snippet("Faculty room E006");
+                .title("Haryana")
+                .snippet("Tap here to calculate directions");
 
-        mMap.addMarker(gurugramOptions);
+        mMap.addMarker(delhiMarkerOptions);
         haryanaMarker = mMap.addMarker(haryanaMarkerOptions);
 
         // Set a click listener for the Haryana marker
@@ -144,7 +141,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     LatLng haryanaLatLng = haryanaMarker.getPosition();
                     calculateDirections(delhiLatLng, haryanaLatLng);
                 } else {
-                    Toast.makeText(MapActivity.this, "Please select a marker first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Map2Activity.this, "Please select a marker first", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -154,17 +151,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Create a PolylineOptions object for the route
         PolylineOptions polylineOptions = new PolylineOptions()
                 .add(origin) // Add the origin point
-                .add(new LatLng(20.24879434926989, 85.80107513143706)) // Add Gurugram as a waypoint
-                //.add(new LatLng(20.248635554551498, 85.80166924319269))
-                .add(new LatLng(20.248617111704224, 85.80109142646087))
-                .add(new LatLng(20.248641043230148, 85.80096669747805))
-                .add(new LatLng(20.248161864718373, 85.80096245499557))
-                .add(new LatLng(20.247947027480805, 85.80126451974314))
-                .add(new LatLng(20.24783418557049, 85.80123567086278))
+                .add(new LatLng(20.248613194060958, 85.80107753354918)) // Add Gurugram as a waypoint
+                .add(new LatLng(20.248586351874835, 85.80093238856625))
+                .add(new LatLng(20.247978894192027, 85.80091484356832))
                 .add(destination) // Add the final destination
                 .color(ContextCompat.getColor(this, R.color.routeColor)) // Customize the color
                 .width(10); // Customize the width
-
 
         // Add the polyline to the map
         if (currentPolyline != null) {
@@ -177,46 +169,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             haryanaMarker.setVisible(false);
         }
     }
-    private double calculateDistanceOfPolyline(List<LatLng> points) {
-        double totalDistance = 0;
 
-        if (points.size() < 2) {
-            return totalDistance; // Not enough points to calculate distance
-        }
-
-        for (int i = 0; i < points.size() - 1; i++) {
-            LatLng startPoint = points.get(i);
-            LatLng endPoint = points.get(i + 1);
-
-            // Calculate the distance between two consecutive points using the Haversine formula
-            double distance = calculateHaversineDistance(startPoint, endPoint);
-            totalDistance += distance;
-            double totalDistanceInMeters = calculateDistanceOfPolyline(currentPolyline.getPoints());
-            TextView totalDistanceTextView = findViewById(R.id.totalDistanceTextView);
-            totalDistanceTextView.setText("Total Distance: " + totalDistanceInMeters + " meters");
-            totalDistanceTextView.setVisibility(View.VISIBLE);        }
-
-        return totalDistance;
-    }
-
-    private double calculateHaversineDistance(LatLng point1, LatLng point2) {
-        // Radius of the Earth in meters
-        final double R = 6371000.0; // Earth's radius in meters
-
-        double lat1 = Math.toRadians(point1.latitude);
-        double lon1 = Math.toRadians(point1.longitude);
-        double lat2 = Math.toRadians(point2.latitude);
-        double lon2 = Math.toRadians(point2.longitude);
-
-        // Haversine formula to calculate distance between two points on the Earth's surface
-        double dlon = lon2 - lon1;
-        double dlat = lat2 - lat1;
-        double a = Math.pow(Math.sin(dlat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c;
-
-        return distance;
-    }
 
 
     private class FetchDirectionsTask extends AsyncTask<String, Void, String> {
@@ -253,7 +206,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 // Add the route points here
 
                 // Customize the polyline appearance as needed
-                polylineOptions.color(ContextCompat.getColor(MapActivity.this, R.color.routeColor));
+                polylineOptions.color(ContextCompat.getColor(Map2Activity.this, R.color.routeColor));
                 polylineOptions.width(10);
 
                 // Add the polyline to the map
@@ -263,7 +216,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 currentPolyline = mMap.addPolyline(polylineOptions);
             } else {
                 // Handle the case where there was an error fetching directions
-                Toast.makeText(MapActivity.this, "Error fetching directions", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Map2Activity.this, "Error fetching directions", Toast.LENGTH_SHORT).show();
             }
         }
     }
